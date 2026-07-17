@@ -4,12 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ねこのて — 猫ボランティア</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -21,23 +15,23 @@
           alt=""
           width="1920"
           height="1080"
+          decoding="async"
+          fetchpriority="high"
         />
       </div>
 
       <div class="hero__veil" aria-hidden="true"></div>
 
       <div class="hero__content">
-        <p class="hero__brand">ねこのて</p>
-        <p class="hero__lead" aria-live="polite">
-          <span class="hero__lead-text" id="lead-text"
-            >小さな手で、ねこの毎日をあたためる。
-保護猫ボランティアを、ここから。</span
-          ><span class="hero__cursor" aria-hidden="true"></span>
+        <h1 class="hero__brand">ねこのて</h1>
+        <p class="hero__lead" id="lead" aria-live="polite">
+          小さな手で、ねこの毎日をあたためる。<br />
+          保護猫ボランティアを、ここから。
         </p>
         <a class="hero__cta" href="#volunteer">ボランティアを始める</a>
       </div>
     </section>
 
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
   </body>
 </html>

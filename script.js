@@ -1,74 +1,60 @@
-const LEAD =
-  "小さな手で、ねこの毎日をあたためる。\n保護猫ボランティアを、ここから。";
+(function () {
+  const leadEl = document.getElementById("lead");
+  if (!leadEl) return;
 
-const brandEl = document.querySelector(".hero__brand");
-const leadEl = document.getElementById("lead-text");
-const cursorEl = document.querySelector(".hero__cursor");
-const ctaEl = document.querySelector(".hero__cta");
-const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const isFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
-function showBrand() {
-  brandEl.classList.remove("is-pending");
-  brandEl.classList.add("is-entering");
-}
+  // iPhone / タッチ端末では最初から全文表示（消さない）
+  if (reduceMotion || !isFinePointer) return;
 
-function showCta() {
-  ctaEl.classList.remove("is-pending");
-  ctaEl.classList.add("is-entering");
-}
-
-function revealLeadInstant() {
-  leadEl.textContent = LEAD;
-  cursorEl.classList.remove("is-on");
-  cursorEl.classList.add("is-done");
-  showCta();
-}
-
-async function typeLead() {
+  const source = leadEl.innerHTML;
+  const parts = source.split(/(<br\s*\/?>)/i);
   leadEl.textContent = "";
-  cursorEl.classList.add("is-on");
+  leadEl.classList.add("is-typing");
 
-  await wait(1200);
+  const chars = [];
 
-  for (const char of LEAD) {
-    leadEl.textContent += char;
-    await wait(char === "\n" ? 420 : char === "、" || char === "。" ? 160 : 78);
-  }
+  parts.forEach((part) => {
+    if (/^<br/i.test(part)) {
+      leadEl.appendChild(document.createElement("br"));
+      return;
+    }
 
-  await wait(500);
-  cursorEl.classList.remove("is-on");
-  cursorEl.classList.add("is-done");
-  showCta();
-}
-
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-// Default: text is already in HTML (works without JS / if timers are throttled).
-// Enhance with animation only when motion is allowed.
-if (reduceMotion) {
-  revealLeadInstant();
-} else {
-  brandEl.classList.add("is-pending");
-  ctaEl.classList.add("is-pending");
-
-  // Force-show if iOS Low Power Mode pauses CSS animations.
-  window.setTimeout(() => {
-    brandEl.classList.remove("is-pending");
-    brandEl.style.opacity = "1";
-    brandEl.style.transform = "none";
-  }, 1800);
-
-  requestAnimationFrame(() => {
-    showBrand();
-    typeLead().catch(revealLeadInstant);
+    Array.from(part).forEach((ch) => {
+      if (ch === "\n" || ch === "\r") return;
+      const span = document.createElement("span");
+      span.className = "char";
+      span.textContent = ch;
+      leadEl.appendChild(span);
+      chars.push(span);
+    });
   });
 
-  // Absolute failsafe: never leave CTA invisible.
-  window.setTimeout(() => {
-    ctaEl.classList.remove("is-pending");
-    ctaEl.style.opacity = "1";
-    ctaEl.style.transform = "none";
-  }, 8000);
-}
+  let index = 0;
+
+  function tick() {
+    if (index >= chars.length) {
+      leadEl.classList.remove("is-typing");
+      return;
+    }
+
+    const span = chars[index];
+    span.classList.add("is-on");
+    const ch = span.textContent;
+    index += 1;
+
+    const delay = ch === "、" || ch === "。" ? 160 : 70;
+    window.setTimeout(tick, delay);
+  }
+
+  window.setTimeout(tick, 700);
+
+  // 万一タイマーが止まっても全文を見える状態に戻す
+  window.setTimeout(function () {
+    chars.forEach(function (span) {
+      span.classList.add("is-on");
+    });
+    leadEl.classList.remove("is-typing");
+  }, 10000);
+})();
